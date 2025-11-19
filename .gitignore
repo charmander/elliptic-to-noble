@@ -1,0 +1,7 @@
+/.idea
+/package-lock.json
+/node_modules
+/tests/sample-project/node_modules
+/tests/sample-project/package-lock.json
+/tests/sample-project/dummy/node_modules
+/tests/sample-project/dummy/package-lock.json

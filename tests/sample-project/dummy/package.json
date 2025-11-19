@@ -1,0 +1,10 @@
+{
+  "name": "dummy",
+  "version": "1.0.0",
+  "description": "This is just a dummy package that requires elliptic",
+  "author": "Soatok Dreamseeker",
+  "license": "ISC",
+  "dependencies": {
+    "elliptic": "^6.6.1"
+  }
+}
