@@ -1,5 +1,5 @@
 {
-  "name": "elliptic",
+  "name": "@soatok/elliptic-to-noble",
   "version": "9999.0.0",
   "description": "Replace npm elliptic with noble-curves, including all dependencies.",
   "main": "index.js",
