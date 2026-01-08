@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ec as EC } from '../index.js';
-import { sha256 } from '@noble/hashes/sha2.js';
-import { sha512 } from '@noble/hashes/sha2.js';
+import { sha256, sha512 } from '@noble/hashes/sha2.js';
 
 const ecdsaCurves = ['secp256k1', 'p256', 'p384', 'p521'];
 
