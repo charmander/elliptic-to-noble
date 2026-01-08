@@ -94,7 +94,7 @@ class KeyPair {
             message = hexToBytes(message);
         }
 
-        const sig = this.ec.noble.sign(message, this.#priv, { lowS: true, prehash: true });
+        const sig = this.ec.noble.sign(message, this.#priv, { lowS: true, prehash: false, format: 'der' });
         return new Signature(sig);
     }
 
@@ -105,7 +105,7 @@ class KeyPair {
 
         const pub = this.#getPublic();
         const sigBytes = signature.toDER ? signature.toDER() : signature;
-        return this.ec.noble.verify(sigBytes, message, pub, { prehash: true });
+        return this.ec.noble.verify(sigBytes, message, pub, { prehash: false, format: 'der' });
     }
 }
 
