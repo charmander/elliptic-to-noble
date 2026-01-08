@@ -10,20 +10,15 @@ const { hexToBytes, bytesToHex } = require('@noble/curves/utils.js');
 class EC {
     constructor(name) {
         if (name === 'secp256k1') {
-            this.noble = {...secp256k1};
+            this.noble = secp256k1;
         } else if (name === 'p256') {
-            this.noble = {...p256};
+            this.noble = p256;
         } else if (name === 'p384') {
-            this.noble = {...p384};
+            this.noble = p384;
         } else if (name === 'p521') {
-            this.noble = {...p521};
+            this.noble = p521;
         } else {
             throw new Error(`Unsupported curve: ${name}`);
-        }
-        if (this.noble.Point) {
-            // noble ECC curves have a Point property
-        } else if (this.noble.ProjectivePoint) {
-            this.noble.Point = this.noble.ProjectivePoint;
         }
     }
 
