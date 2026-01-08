@@ -97,14 +97,12 @@ class KeyPair {
             this.pub = this.ec.noble.getPublicKey(this.priv, false);
         }
         let pubBytes = this.pub;
-        const point = this.ec.noble.Point.fromHex(bytesToHex(pubBytes));
-        const hex = point.toHex(compressed);
-        pubBytes = hexToBytes(hex);
+        const point = this.ec.noble.Point.fromBytes(pubBytes);
 
         if (enc === 'hex') {
-            return bytesToHex(pubBytes);
+            return point.toHex(compressed);
         }
-        return pubBytes;
+        return point.toBytes(compressed);
     }
 
     getPrivate(enc = 'hex') {
