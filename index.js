@@ -17,8 +17,6 @@ class EC {
             this.noble = {...p384};
         } else if (name === 'p521') {
             this.noble = {...p521};
-        } else if (name === 'ed25519') {
-            this.noble = ed25519;
         } else {
             throw new Error(`Unsupported curve: ${name}`);
         }
@@ -100,14 +98,7 @@ class KeyPair {
     sign(msgHash, options) {
         const hash = typeof msgHash === 'string' ? hexToBytes(msgHash) : msgHash;
         const sig = this.ec.noble.sign(hash, this.#priv, { lowS: true, prehash: true });
-        return {
-            r: sig.r,
-            s: sig.s,
-            toDER: (enc) => {
-                if (enc === 'hex') return bytesToHex(sig);
-                return sig;
-            }
-        };
+        return new Signature(sig);
     }
 
     verify(msgHash, signature) {
@@ -118,7 +109,145 @@ class KeyPair {
     }
 }
 
+class Signature {
+    #der;
+
+    constructor(der) {
+        this.#der = der;
+    }
+
+    get r() {
+        throw new Error('not implemented');
+    }
+
+    get s() {
+        throw new Error('not implemented');
+    }
+
+    toDER(enc) {
+        if (enc === 'hex') return bytesToHex(this.#der);
+        return this.#der;
+    }
+}
+
+class EdDsa {
+    constructor(curve) {
+        if (curve !== 'ed25519') {
+            throw new Error('only ed25519 supported for EdDSA');
+        }
+    }
+
+    keyFromSecret(secret) {
+        if (typeof secret === 'string') {
+            secret = hexToBytes(secret);
+        }
+
+        if (secret.length !== 32) {
+            throw new Error('only 32-byte secrets supported');
+        }
+
+        return new EdKeyPair({secret});
+    }
+
+    keyFromPublic(pub) {
+        if (typeof pub === 'string') {
+            pub = hexToBytes(pub);
+        }
+
+        return new EdKeyPair({pub});
+    }
+}
+
+class EdKeyPair {
+    #secret;
+    #privBytes = undefined;
+    #pubBytes;
+
+    constructor(opts) {
+        this.#secret = opts.secret;
+        this.#pubBytes = opts.pubBytes;
+    }
+
+    secret() {
+        return this.#secret;
+    }
+
+    getSecret(enc) {
+        return enc === 'hex' ? bytesToHex(this.#secret) : this.#secret;
+    }
+
+    #getExtendedPublicKey() {
+        const { scalar, pointBytes } = ed25519.utils.getExtendedPublicKey(this.#secret);
+        this.#privBytes ??= scalar;
+        this.#pubBytes ??= pointBytes;
+    }
+
+    privBytes() {
+        if (this.#privBytes === undefined) {
+            this.#getExtendedPublicKey();
+        }
+
+        return this.#privBytes;
+    }
+
+    pubBytes() {
+        if (this.#pubBytes === undefined) {
+            this.#getExtendedPublicKey();
+        }
+
+        return this.#pubBytes;
+    }
+
+    getPublic(enc) {
+        const pubBytes = this.pubBytes();
+        return enc === 'hex' ? bytesToHex(pubBytes) : pubBytes;
+    }
+
+    sign(message) {
+        if (typeof message === 'string') {
+            message = hexToBytes(message);
+        }
+
+        return new EdSignature(ed25519.sign(message, this.#secret));
+    }
+
+    verify(message, sig) {
+        if (typeof message === 'string') {
+            message = hexToBytes(message);
+        }
+
+        if (typeof sig === 'string') {
+            sig = hexToBytes(sig);
+        }
+
+        if (sig instanceof EdSignature) {
+            sig = sig.toBytes();
+        } else if (!Array.isArray(sig)) {
+            throw new TypeError('unsupported type for signature');
+        }
+
+        return ed25519.verify(sig, message, this.pubBytes());
+    }
+}
+
+class EdSignature {
+    #bytes;
+
+    constructor(bytes) {
+        this.#bytes = bytes;
+    }
+
+    toBytes() {
+        return this.#bytes;
+    }
+
+    toHex() {
+        return bytesToHex(this.#bytes).toUpperCase();
+    }
+}
+
 module.exports = {
     version: '9999.0.0-soatok',
     ec: EC,
+    eddsa: EdDsa,
 };
