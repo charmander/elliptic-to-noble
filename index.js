@@ -3,15 +3,11 @@
 // Let's import noble-curves:
 const { secp256k1 } = require('@noble/curves/secp256k1.js');
 const { p256, p384, p521 } = require('@noble/curves/nist.js');
-const { ed25519 } = require('@noble/curves/ed25519.js');
+
+// x25519 will be undefined if @noble/curves is overridden to a version before 1.3.
+const { ed25519, x25519 } = require('@noble/curves/ed25519.js');
+
 const utils =require('@noble/curves/utils.js');
-// Optional X25519 support (curve25519)
-let x25519;
-try {
-    x25519 = require('@noble/curves/ed25519.js').x25519;
-} catch {
-    // It's okay if x25519 isn't available.
-}
 
 const hexToBytes = (hex) => {
     if (typeof hex !== 'string') throw new Error('hex string expected');
