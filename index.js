@@ -94,17 +94,23 @@ class KeyPair {
         return bytesToHex(this.#priv);
     }
 
-    sign(msgHash, options) {
-        const hash = typeof msgHash === 'string' ? hexToBytes(msgHash) : msgHash;
-        const sig = this.ec.noble.sign(hash, this.#priv, { lowS: true, prehash: true });
+    sign(message, options) {
+        if (typeof message === 'string') {
+            message = hexToBytes(message);
+        }
+
+        const sig = this.ec.noble.sign(message, this.#priv, { lowS: true, prehash: true });
         return new Signature(sig);
     }
 
-    verify(msgHash, signature) {
-        const hash = typeof msgHash === 'string' ? hexToBytes(msgHash) : msgHash;
+    verify(message, signature) {
+        if (typeof message === 'string') {
+            message = hexToBytes(message);
+        }
+
         const pub = this.#getPublic();
         const sigBytes = signature.toDER ? signature.toDER() : signature;
-        return this.ec.noble.verify(sigBytes, hash, pub, { prehash: true });
+        return this.ec.noble.verify(sigBytes, message, pub, { prehash: true });
     }
 }
 
