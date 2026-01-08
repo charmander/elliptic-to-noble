@@ -1,13 +1,5 @@
 'use strict';
 
-// We want to block the real library from being installed.
-try {
-    const real = require('elliptic');
-    if (real && real.EC) {
-        throw new Error('@soatok/elliptic: real "elliptic" package blocked — using noble-curves');
-    }
-} catch {}
-
 // Let's import noble-curves:
 const { secp256k1 } = require('@noble/curves/secp256k1.js');
 const { p256, p384, p521 } = require('@noble/curves/nist.js');
