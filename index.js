@@ -3,9 +3,7 @@
 // Let's import noble-curves:
 const { secp256k1 } = require('@noble/curves/secp256k1.js');
 const { p256, p384, p521 } = require('@noble/curves/nist.js');
-
-// x25519 will be undefined if @noble/curves is overridden to a version before 1.3.
-const { ed25519, x25519 } = require('@noble/curves/ed25519.js');
+const { ed25519 } = require('@noble/curves/ed25519.js');
 
 const utils =require('@noble/curves/utils.js');
 
@@ -43,9 +41,6 @@ class EC {
             this.privateKeyLength = 66;
         } else if (name === 'ed25519') {
             this.noble = ed25519;
-        } else if (name === 'curve25519') {
-            if (!x25519) throw new Error('curve25519 requires @noble/curves ≥1.3');
-            this.noble = { x25519 };
         } else {
             throw new Error(`Unsupported curve: ${name}`);
         }
