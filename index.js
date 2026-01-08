@@ -72,7 +72,7 @@ class EC {
         while (!priv) {
             priv = utils.randomBytes(this.privateKeyLength || 32);
             try {
-                this.keyFromPrivate(priv, 'bytes').getPublic();
+                this.keyFromPrivate(priv, 'bytes').getPublic('hex');
             } catch (e) {
                 priv = null;
             }
@@ -82,40 +82,52 @@ class EC {
 }
 
 class KeyPair {
+    #priv;
+    #pub;
+
     constructor(ec, opts) {
         this.ec = ec;
-        if (opts.priv != null) {
-            this.priv = opts.priv;
-        }
-        if (opts.pub != null) {
-            this.pub = opts.pub;
-        }
+        this.#priv = opts.priv ?? null;
+        this.#pub = opts.pub ?? null;
     }
 
-    getPublic(compressed = true, enc = 'hex') {
-        if (!this.pub) {
-            this.pub = this.ec.noble.getPublicKey(this.priv, false);
-        }
-        let pubBytes = this.pub;
-        const point = this.ec.noble.Point.fromBytes(pubBytes);
-
-        if (enc === 'hex') {
-            return point.toHex(compressed);
-        }
-        return point.toBytes(compressed);
+    get priv() {
+        throw new Error("direct access to `.priv` not supported; use `.getPrivate('hex')`")
     }
 
-    getPrivate(enc = 'hex') {
-        if (!this.priv) throw new Error('no private key');
-        if (enc === 'hex') {
-            return bytesToHex(this.priv);
+    get pub() {
+        throw new Error("direct access to `.pub` not supported; use `.getPublic([compressed, ]'hex')`")
+    }
+
+    #getPublic() {
+        return this.#pub ??= this.ec.noble.getPublicKey(this.#priv, false);
+    }
+
+    getPublic(compressed, enc) {
+        if (typeof compressed === 'string') {
+            enc = compressed;
+            compressed = undefined;
         }
-        return this.priv;
+
+        if (enc !== 'hex') {
+            throw new Error('only hex encoding supported');
+        }
+
+        const point = this.ec.noble.Point.fromBytes(this.#getPublic());
+        return point.toHex(compressed ?? false);
+    }
+
+    getPrivate(enc) {
+        if (enc !== 'hex') {
+            throw new Error('only hex encoding supported');
+        }
+
+        return bytesToHex(this.#priv);
     }
 
     sign(msgHash, options) {
         const hash = typeof msgHash === 'string' ? hexToBytes(msgHash) : msgHash;
-        const sig = this.ec.noble.sign(hash, this.priv, { lowS: true, prehash: true });
+        const sig = this.ec.noble.sign(hash, this.#priv, { lowS: true, prehash: true });
         return {
             r: sig.r,
             s: sig.s,
@@ -128,7 +140,7 @@ class KeyPair {
 
     verify(msgHash, signature) {
         const hash = typeof msgHash === 'string' ? hexToBytes(msgHash) : msgHash;
-        const pub = this.getPublic(false, 'bytes');
+        const pub = this.#getPublic();
         const sigBytes = signature.toDER ? signature.toDER() : signature;
         return this.ec.noble.verify(sigBytes, hash, pub, { prehash: true });
     }

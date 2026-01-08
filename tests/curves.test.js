@@ -9,14 +9,14 @@ describe.each(ecdsaCurves)('ECDSA with %s', (curve) => {
     it('should generate a key pair', () => {
         const ec = new EC(curve);
         const keyPair = ec.genKeyPair();
-        expect(keyPair.getPrivate()).toBeDefined();
-        expect(keyPair.getPublic()).toBeDefined();
+        expect(keyPair.getPrivate('hex')).toBeDefined();
+        expect(keyPair.getPublic('hex')).toBeDefined();
     });
 
     it('should generate a key pair from a private key', () => {
         const ec = new EC(curve);
-        const privateKey = ec.genKeyPair().getPrivate();
-        const keyPair = ec.keyFromPrivate(privateKey);
+        const privateKey = ec.genKeyPair().getPrivate('hex');
+        const keyPair = ec.keyFromPrivate(privateKey, 'hex');
         expect(keyPair.getPrivate('hex')).toBe(privateKey.toString('hex'));
     });
 
@@ -44,13 +44,13 @@ describe('EdDSA with ed25519', () => {
     it('should generate a key pair', () => {
         const ec = new EC('ed25519');
         const keyPair = ec.genKeyPair();
-        expect(keyPair.getPrivate()).toBeDefined();
-        expect(keyPair.getPublic()).toBeDefined();
+        expect(keyPair.getPrivate('hex')).toBeDefined();
+        expect(keyPair.getPublic('hex')).toBeDefined();
     });
 
     it('should generate a key pair from a private key', () => {
         const ec = new EC('ed25519');
-        const privateKey = ec.genKeyPair().getPrivate();
+        const privateKey = ec.genKeyPair().getPrivate('hex');
         const keyPair = ec.keyFromPrivate(privateKey);
         expect(keyPair.getPrivate('hex')).toBe(privateKey.toString('hex'));
     });
