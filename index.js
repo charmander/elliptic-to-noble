@@ -20,7 +20,6 @@ class EC {
         } else {
             throw new Error(`Unsupported curve: ${name}`);
         }
-        this.curveName = name;
         if (this.noble.Point) {
             // noble ECC curves have a Point property
         } else if (this.noble.ProjectivePoint) {
